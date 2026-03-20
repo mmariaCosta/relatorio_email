@@ -1,4 +1,4 @@
-#  Workflow de Certificados de Aprovação (CA)
+# VO028 — Workflow de Certificados de Aprovação (CA)
 
 > **Protheus TOTVS** · AdvPL · Versão 1.1  
 > Autor: ERP-Tools · Atualizado: 2026
@@ -10,6 +10,7 @@
 - [Visão Geral](#visão-geral)
 - [Pré-requisitos](#pré-requisitos)
 - [Configuração SMTP](#configuração-smtp)
+- [Cadastro de Emails (EMAIL.prw)](#cadastro-de-emails-emailprw)
 - [Estrutura do Código](#estrutura-do-código)
 - [Fluxo Principal](#fluxo-principal)
 - [Fluxo de Envio de E-mail](#fluxo-de-envio-de-e-mail)
@@ -83,6 +84,89 @@ KeyServer=totvs_certificate_key.pem
 
 > [!IMPORTANT]
 >‼️O host e a porta usados em `oServer:Init()` no código devem ser idênticos ao `appserver.ini`. Divergências causam o erro *The HELLO command failed*.
+
+---
+
+## Cadastro de Emails (EMAIL.prw)
+
+A tela de **Cadastro de Emails** é uma rotina MVC padrão do Protheus que permite manter o cadastro da tabela `SZB`, cujos dados são consumidos pelo workflow `VO028` para envio dos e-mails de vencimento de CA.
+
+### Estrutura MVC
+
+```mermaid
+graph LR
+    A["User Function EMAIL()"]
+    A --> B["FwMBrowse\nLista registros da SZB"]
+    B --> C["MenuDef()\nOpções do menu"]
+    C --> D["ModelDef()\nEstrutura e chave primária"]
+    D --> E["ViewDef()\nLayout da tela"]
+
+    style A fill:#0c2c65,color:#fff
+    style B fill:#1a3a7a,color:#fff
+    style C fill:#2d5fa3,color:#fff
+    style D fill:#2d5fa3,color:#fff
+    style E fill:#2d5fa3,color:#fff
+```
+
+### Funções da tela
+
+#### `User Function EMAIL()`
+Ponto de entrada da rotina. Inicializa o browse da tabela `SZB`.
+
+```advpl
+User Function EMAIL()
+    Local cFunBkp := FunName()
+    Local oBrowse := Nil
+
+    SetFunName("EMAIL")
+    ChkFile("SZB")
+
+    oBrowse := FwMBrowse():New()
+    oBrowse:setAlias('SZB')
+    oBrowse:setMenuDef("EMAIL")
+    oBrowse:setDescription('Cadastro de Emails')
+    oBrowse:Activate()
+
+    SetFunName(cFunBkp)
+Return
+```
+
+#### `Static Function ModelDef()`
+Define a estrutura do modelo e a **chave primária** da tabela SZB. A chave primária é obrigatória para o funcionamento do MVC.
+
+```advpl
+Static Function ModelDef()
+    Local oStruSZB := FwFormStruct(1,'SZB')
+    Local oModel
+
+    oModel := MPFormModel():New("EMAILMODEL")
+    oModel:AddFields('SZBMASTER', /*cOwner*/, oStruSZB)
+    oModel:SetPrimaryKey({ZB_FILIAL, 'ZB_COD'})
+    oModel:SetDescription('Manutencao de Emails')
+
+Return oModel
+```
+
+> [!IMPORTANT]
+> Sem o `SetPrimaryKey` configurado corretamente, o sistema lança o erro:
+> `Configure a chave primária do modelo para ativar a classe on FWFORMMODEL:ACTIVATE`
+
+#### `Static Function ViewDef()`
+Define o layout visual da tela, criando um box horizontal com os campos da SZB.
+
+#### `Static Function MenuDef()`
+Define as opções disponíveis no menu da rotina.
+
+### Opções do Menu
+
+| Opção | Operation | Descrição |
+|-------|-----------|----------|
+| Incluir | `3` | Inclui novo registro na SZB |
+| Alterar | `4` | Altera registro existente |
+| Visualizar | `2` | Exibe registro sem edição |
+| Excluir | `5` | Exclui registro da SZB |
+| Imprimir | `8` | Imprime o registro |
+| Copiar | `9` | Copia registro existente |
 
 ---
 
@@ -383,7 +467,7 @@ erDiagram
 | Condição `DATEDIFF` | STATUS | Coluna DIAS |
 |--------------------|--------|-------------|
 | `> 0` (data CA < hoje) | 🔴 **Vencido** | `Vencido há X dias ` |
-| `< 0` (data CA > hoje) | 🟡 **Preste a Vencer** | `Vence em X dias` |
+| `< 0` (data CA > hoje) | 🟡 **A Vencer** | `Vence em X dias` |
 | `= 0` (data CA = hoje) | 🟠 **Vence Hoje** | `Vence hoje` |
 
 ### Regra de disparo do e-mail
@@ -396,7 +480,7 @@ O e-mail **só é enviado** quando o STATUS for `A Vencer` e a quantidade de dia
 | 15 dias | ✅ Sim |
 | 7 dias  | ✅ Sim |
 | 1 dias  | ✅ Sim |
-| Outro valor | ❌ Não |
+| Qualquer outro valor | ❌ Não |
 
 ```advpl
 If AllTrim((cQry)->STATUS) == "A Vencer" .And. ;
