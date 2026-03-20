@@ -383,7 +383,7 @@ erDiagram
 | Condição `DATEDIFF` | STATUS | Coluna DIAS |
 |--------------------|--------|-------------|
 | `> 0` (data CA < hoje) | 🔴 **Vencido** | `Vencido há X dias ` |
-| `< 0` (data CA > hoje) | 🟡 **A Vencer** | `Vence em X dias` |
+| `< 0` (data CA > hoje) | 🟡 **Preste a Vencer** | `Vence em X dias` |
 | `= 0` (data CA = hoje) | 🟠 **Vence Hoje** | `Vence hoje` |
 
 ### Regra de disparo do e-mail
