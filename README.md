@@ -396,7 +396,7 @@ O e-mail **só é enviado** quando o STATUS for `A Vencer` e a quantidade de dia
 | 15 dias | ✅ Sim |
 | 7 dias  | ✅ Sim |
 | 1 dias  | ✅ Sim |
-| Qualquer outro valor | ❌ Não |
+| Outro valor | ❌ Não |
 
 ```advpl
 If AllTrim((cQry)->STATUS) == "A Vencer" .And. ;
