@@ -3,13 +3,13 @@
 #include "totvs.ch"
 #include "parmtype.ch"
 
-/*/{Protheus.doc} VO001
+/*{Protheus.doc} VO001
 @author ERP-Tools
 @since 20/07/2018
 @version 1.1
 @description Workflow de recebimento de materiais por produto
 @type Function
-/*/
+*/
 
 User Function VO028()
 
@@ -66,7 +66,7 @@ While !(cQry)->(Eof())
     EndIf
 
     If AllTrim((cQry)->STATUS) == "Vencido"
-        cDias := "Vencido há " +AllTrim(Str((cQry)->DIAS)) + " dias "
+        cDias := "Vencido hÃ¡ " +AllTrim(Str((cQry)->DIAS)) + " dias "
     ElseIf AllTrim((cQry)->STATUS) == "A Vencer"
         cDias := "Vence em " + AllTrim(Str((cQry)->DIAS)) + " dias"
     Else 
