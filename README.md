@@ -1,4 +1,4 @@
-# VO028 — Workflow de Certificados de Aprovação (CA)
+#  Workflow de Certificados de Aprovação (CA)
 
 > **Protheus TOTVS** · AdvPL · Versão 1.1  
 > Autor: ERP-Tools · Atualizado: 2026
